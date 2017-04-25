@@ -1,0 +1,16 @@
+<div class="text-center">
+	<h1>Symptom List</h1>
+	<h3>Select your Disease</h3>
+
+		<% diseases.forEach(function(disease){ %>
+		<div>
+			<a href="/diseases/<%=disease.id%>">
+				<p class="text-danger">
+				<%=disease.name%>
+				</p>
+			</a>
+
+		</div>
+	<% }); %>
+
+</div>
