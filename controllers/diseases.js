@@ -54,7 +54,7 @@ router.get('/:id', function(req, res) {
         where: { id: diseaseId },
         include: [db.symptom]
     }).then(function(disease) {
-        res.render("diseases/show", { diseases: disease });
+        res.render("diseases/show", { disease: disease });
     });
 
 });
