@@ -1,1 +1,14 @@
 <h1> <%= disease.name%> </h1>
+<h2><%= disease.description %></h2>
+<h3>Transmission type: <%= disease.transmission %></h3>
+<h4>Associated Symptoms</h4>
+<ul class="list-group">
+<% disease.symptoms.forEach(function(symptom) {%>
+		<li class="list-group-item">
+			<%= symptom.name %>
+		</li>
+<% }); %>
+</ul>
+<div class="text-center">
+<img src="http://trimed-cms-prod.s3.amazonaws.com/assets/images/unhappy_doctor_1334251296.jpg" alt="">
+</div>
