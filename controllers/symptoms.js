@@ -14,11 +14,33 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-    db.symptom.create(req.body).then(function(symptom) {
-        res.redirect("/symptoms");
+    db.symptom.create({
+        name: req.body.name,
+        description: req.body.description,
+        affectedSystems: req.body.affectedSystems,
+        severity: req.body.severity
+    }).then(function(symptom) {
+        var diseases = [];
+        if (req.body.diseases) {
+            diseases = req.body.diseases.split(',');
+        }
+
+        if (diseases.length > 0) {
+            async.forEachSeries(diseases, function(disease, d) {
+                db.disease.findOrCreate({
+                    where: { name: disease.trim() }
+                }).spread(function(disease, wasCreated) {
+                    symptom.addDisease(disease);
+                    d();
+                });
+            }, function() {
+                res.redirect('/symptoms');
+            });
+        } else {
+            res.redirect('/symptoms');
+        }
     }).catch(function(error) {
-        console.log("error", error);
-        res.send("error!");
+        console.log('error', error);
     });
 });
 
@@ -28,8 +50,16 @@ router.get('/add', function(req, res) {
 });
 
 router.get('/:id', function(req, res) {
-    var symptomId = req.params.id
-})
+    var symptomId = req.params.id;
 
+    db.symptom.findOne({
+        where: { id: symptomId },
+        include: [db.disease]
+    }).then(function(symptom) {
+        res.render('symptoms/show', { symptom: symptom });
+    }).catch(function(error) {
+        console.log('error', error);
+    });
+});
 
 module.exports = router;
