@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require("../models");
+var async = require('async');
 
 
 router.get('/', function(req, res) {
@@ -19,19 +20,19 @@ router.post('/', function(req, res) {
         description: req.body.description,
         affectedSystems: req.body.affectedSystems,
         severity: req.body.severity
-    }).then(function(symptom) {
+    }).then(function(newSymptom) {
         var diseases = [];
         if (req.body.diseases) {
-            diseases = req.body.diseases.split(',');
+            diseases = req.body.diseases.split(",");
         }
 
         if (diseases.length > 0) {
-            async.forEachSeries(diseases, function(disease, d) {
+            async.forEachSeries(diseases, function(disease, callback) {
                 db.disease.findOrCreate({
                     where: { name: disease.trim() }
                 }).spread(function(disease, wasCreated) {
-                    symptom.addDisease(disease);
-                    d();
+                    newSymptom.addDisease(disease);
+                    callback();
                 });
             }, function() {
                 res.redirect('/symptoms');
@@ -57,9 +58,9 @@ router.get('/:id', function(req, res) {
         include: [db.disease]
     }).then(function(symptom) {
         res.render('symptoms/show', { symptom: symptom });
-    }).catch(function(error) {
-        console.log('error', error);
     });
+
 });
+
 
 module.exports = router;
